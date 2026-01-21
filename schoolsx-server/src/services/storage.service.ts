@@ -5,35 +5,45 @@ import { config } from '../config/env.js';
 import crypto from 'crypto';
 
 export class StorageService {
-    private bucketName = config.aws.s3BucketName;
+    async uploadFile(file: Buffer, fileName: string): Promise<string> {
+        const key = `uploads/${Date.now()}-${fileName}`;
+        await s3Client.send(
+            new PutObjectCommand({
+                Bucket: config.aws.s3BucketName,
+                Key: key,
+                Body: file,
+            })
+        );
+        return `https://${config.aws.s3BucketName}.s3.${config.aws.region}.amazonaws.com/${key}`;
+    }
 
-    async getPresignedUploadUrl(
-        key: string,
-        contentType: string,
-        expiresIn = 3600
-    ): Promise<string> {
+    async deleteFile(fileUrl: string): Promise<void> {
+        const key = fileUrl.split('.com/')[1];
+        await s3Client.send(
+            new DeleteObjectCommand({
+                Bucket: config.aws.s3BucketName,
+                Key: key,
+            })
+        );
+    }
+
+    /**
+     * Generate a presigned URL for direct client upload to S3
+     * Returns a URL that clients can PUT files to
+     */
+    async getUploadUrl(fileName: string, contentType: string): Promise<{ uploadUrl: string; fileKey: string }> {
+        const key = `uploads/${Date.now()}-${fileName}`;
+
         const command = new PutObjectCommand({
-            Bucket: this.bucketName,
+            Bucket: config.aws.s3BucketName,
             Key: key,
             ContentType: contentType,
-        }); // removed ACL: 'public-read' as it's often blocked by default S3 settings
-
-        return getSignedUrl(s3Client, command, { expiresIn });
-    }
-
-    async deleteFile(key: string): Promise<void> {
-        const command = new DeleteObjectCommand({
-            Bucket: this.bucketName,
-            Key: key,
         });
 
-        await s3Client.send(command);
-    }
+        const uploadUrl = await getSignedUrl(s3Client, command, { expiresIn: 3600 });
+        const fileUrl = `https://${config.aws.s3BucketName}.s3.${config.aws.region}.amazonaws.com/${key}`;
 
-    generateKey(originalName: string): string {
-        const uniqueId = crypto.randomUUID();
-        const extension = originalName.split('.').pop();
-        return `${uniqueId}.${extension}`;
+        return { uploadUrl, fileKey: fileUrl };
     }
 }
 

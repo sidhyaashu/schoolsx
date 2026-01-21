@@ -6,6 +6,13 @@ import studentRoutes from './routes/student.routes.js';
 import assignmentRoutes from './routes/assignment.routes.js';
 import aiRoutes from './routes/ai.routes.js';
 import teacherRoutes from './routes/teacher.routes.js';
+import adminRoutes from './routes/admin.routes.js';
+import schedulingRoutes from './routes/scheduling.routes.js';
+import gradingRoutes from './routes/grading.routes.js';
+import storageRoutes from './routes/storage.routes.js';
+import notificationRoutes from './routes/notification.routes.js';
+import chatRoutes from './routes/chat.routes.js';
+import livekitRoutes from './routes/livekit.routes.js';
 
 const app = express();
 
@@ -17,6 +24,13 @@ app.use('/api/student', studentRoutes);
 app.use('/api/assignments', assignmentRoutes);
 app.use('/api/ai', aiRoutes);
 app.use('/api/teacher', teacherRoutes);
+app.use('/api/admin', adminRoutes);
+app.use('/api/scheduling', schedulingRoutes);
+app.use('/api/grading', gradingRoutes);
+app.use('/api/storage', storageRoutes);
+app.use('/api/notifications', notificationRoutes);
+app.use('/api/chat', chatRoutes);
+app.use('/api/livekit', livekitRoutes);
 
 app.get('/health', async (req: Request, res: Response) => {
     try {
