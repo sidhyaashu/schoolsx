@@ -10,10 +10,12 @@ import { BookOpen, Calendar, CheckCircle2, FlaskConical, MessageCircle, MoreVert
 
 
 import { useAppSelector } from "@/store/hooks";
+import { useTeacherClasses } from "@/hooks/api/use-teacher";
 
 export default function TeacherDashboard() {
   const { user } = useAppSelector((state) => state.auth);
-  const teacherName = user?.name || "Mr. Sharma";
+  const { data: classes } = useTeacherClasses(); // Ready to be used
+  const teacherName = user?.name || "Teacher";
   return (
     <div className="space-y-6">
       {/* Header */}

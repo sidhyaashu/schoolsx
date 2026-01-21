@@ -36,7 +36,31 @@ export const studentSubjects = pgTable('student_subjects', {
     enrolledAt: timestamp('enrolled_at').defaultNow(),
 });
 
-// Relations
 export type Subject = typeof subjects.$inferSelect;
 export type NewSubject = typeof subjects.$inferInsert;
 export type StudentSubject = typeof studentSubjects.$inferSelect;
+
+export const assignments = pgTable('assignments', {
+    id: serial('id').primaryKey(),
+    subjectId: serial('subject_id').references(() => subjects.id),
+    title: text('title').notNull(),
+    description: text('description'),
+    dueDate: timestamp('due_date').notNull(),
+    teacherId: serial('teacher_id').references(() => users.id),
+    createdAt: timestamp('created_at').defaultNow(),
+    updatedAt: timestamp('updated_at').defaultNow(),
+});
+
+export const submissions = pgTable('submissions', {
+    id: serial('id').primaryKey(),
+    assignmentId: serial('assignment_id').references(() => assignments.id),
+    studentId: serial('student_id').references(() => users.id),
+    fileUrl: text('file_url').notNull(),
+    status: text('status').default('submitted'), // submitted, graded
+    grade: text('grade'),
+    feedback: text('feedback'),
+    submittedAt: timestamp('submitted_at').defaultNow(),
+});
+
+export type Assignment = typeof assignments.$inferSelect;
+export type Submission = typeof submissions.$inferSelect;

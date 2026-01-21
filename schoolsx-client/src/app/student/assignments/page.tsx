@@ -6,47 +6,18 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Clock, FileCheck, AlertCircle, FileText, Upload } from "lucide-react";
 
+import { useAssignments } from "@/hooks/api/use-assignments";
+import { Loader2 } from "lucide-react";
+
 export default function AssignmentsPage() {
-  const assignments = [
-    {
-      id: 1,
-      title: "Algebra Worksheet 4.2",
-      subject: "Math",
-      dueDate: "Today, 6:00 PM",
-      status: "Pending",
-      teacher: "Mr. Sharma",
-      priority: "high",
-    },
-    {
-      id: 2,
-      title: "Plant Cell Diagram",
-      subject: "Science",
-      dueDate: "Tomorrow, 10:00 AM",
-      status: "Pending",
-      teacher: "Ms. Riya",
-      priority: "medium",
-    },
-    {
-      id: 3,
-      title: "History Essay: Mughal Empire",
-      subject: "History",
-      dueDate: "Oct 28, 2024",
-      status: "Submitted",
-      teacher: "Mrs. Gupta",
-      priority: "low",
-      score: "Pending"
-    },
-    {
-      id: 4,
-      title: "English Poem Recitation",
-      subject: "English",
-      dueDate: "Oct 25, 2024",
-      status: "Graded",
-      teacher: "Mr. Verma",
-      priority: "low",
-      score: "18/20"
-    },
-  ];
+  const { data: assignments, isLoading } = useAssignments();
+
+  if (isLoading) {
+    return <div className="flex justify-center p-8"><Loader2 className="animate-spin" /></div>;
+  }
+
+  // Fallback if no data
+  const list = assignments || [];
 
   return (
     <div className="space-y-6">
@@ -69,26 +40,22 @@ export default function AssignmentsPage() {
 
         <TabsContent value="pending" className="space-y-4">
           <div className="grid gap-4">
-            {assignments.filter(a => a.status === 'Pending').map((assignment) => (
+            {list.filter((a: any) => !a.status || a.status === 'pending').map((assignment: any) => (
               <Card key={assignment.id} className="border-l-4 border-l-blue-500">
                 <CardHeader className="pb-2">
                   <div className="flex justify-between items-start">
                     <div>
-                      <Badge variant="outline" className="mb-2">{assignment.subject}</Badge>
+                      <Badge variant="outline" className="mb-2">{assignment.subjectId}</Badge>
                       <CardTitle>{assignment.title}</CardTitle>
-                      <CardDescription>Assigned by {assignment.teacher}</CardDescription>
+                      <CardDescription>{assignment.description}</CardDescription>
                     </div>
-                    {assignment.priority === 'high' && (
-                      <Badge variant="destructive" className="flex items-center gap-1">
-                        <AlertCircle className="h-3 w-3" /> Due Soon
-                      </Badge>
-                    )}
+                    {/* Priority logic would go here */}
                   </div>
                 </CardHeader>
                 <CardContent>
                   <div className="flex items-center gap-2 text-sm text-muted-foreground">
                     <Clock className="h-4 w-4" />
-                    <span>Due: <span className="font-medium text-foreground">{assignment.dueDate}</span></span>
+                    <span>Due: <span className="font-medium text-foreground">{new Date(assignment.dueDate).toLocaleDateString()}</span></span>
                   </div>
                 </CardContent>
                 <CardFooter className="flex justify-between border-t pt-4">
@@ -103,53 +70,11 @@ export default function AssignmentsPage() {
         </TabsContent>
 
         <TabsContent value="submitted" className="space-y-4">
-          <div className="grid gap-4">
-            {assignments.filter(a => a.status === 'Submitted').map((assignment) => (
-              <Card key={assignment.id}>
-                <CardHeader className="pb-2">
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <Badge variant="outline" className="mb-2">{assignment.subject}</Badge>
-                      <CardTitle>{assignment.title}</CardTitle>
-                      <CardDescription>Assigned by {assignment.teacher}</CardDescription>
-                    </div>
-                    <Badge variant="secondary" className="bg-green-100 text-green-800 hover:bg-green-100">
-                      <FileCheck className="mr-1 h-3 w-3" /> Submitted
-                    </Badge>
-                  </div>
-                </CardHeader>
-                <CardFooter className="flex justify-between border-t pt-4">
-                  <Button variant="ghost" size="sm">View Submission</Button>
-                  <span className="text-sm text-muted-foreground">Awaiting Grade</span>
-                </CardFooter>
-              </Card>
-            ))}
-          </div>
+          <div className="text-center py-10 text-muted-foreground">No submissions yet</div>
         </TabsContent>
 
         <TabsContent value="graded" className="space-y-4">
-          <div className="grid gap-4">
-            {assignments.filter(a => a.status === 'Graded').map((assignment) => (
-              <Card key={assignment.id}>
-                <CardHeader className="pb-2">
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <Badge variant="outline" className="mb-2">{assignment.subject}</Badge>
-                      <CardTitle>{assignment.title}</CardTitle>
-                      <CardDescription>Assigned by {assignment.teacher}</CardDescription>
-                    </div>
-                    <div className="flex flex-col items-end">
-                      <span className="text-2xl font-bold text-green-600">{assignment.score}</span>
-                      <span className="text-xs text-muted-foreground">Score</span>
-                    </div>
-                  </div>
-                </CardHeader>
-                <CardFooter className="flex justify-between border-t pt-4">
-                  <Button variant="ghost" size="sm">View Feedback</Button>
-                </CardFooter>
-              </Card>
-            ))}
-          </div>
+          <div className="text-center py-10 text-muted-foreground">No graded assignments yet</div>
         </TabsContent>
       </Tabs>
     </div>
